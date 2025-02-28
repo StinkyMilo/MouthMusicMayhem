@@ -1,0 +1,11 @@
+<canvas id="canvas" width=800 height=400 style="border:1px solid black;"></canvas>
+<p id="errorText"></p>
+<br/>
+<button id="recordButton" class="button primary" onclick="record();">Record</button>
+<button id="endButton" class="button" onclick="endGame();">End</button>
+<button id="startOver" class="button" onclick="startOver();">Start Over</button>
+<audio id="audioElement"></audio>
+<label for="numPlayers">Players:</label>
+<input type="range" id="numPlayers" min="1" max="6" oninput="updateRange();">
+<p id="currentPlayers"></p>
+<script src="index.js" type="module" defer></script>
