@@ -1,6 +1,9 @@
 - Try making volume the X axis
     - Change turn logic accordingly to end after a single continuous noise
     - Add option to turn it on or off
+- Add customization to drawing
+    - Allow undo
+    - Allow choosing of color
 - Add Pictionary Mode
     - Get a good word list off the internet
     - Set up menus - tell the guessing player to look away and have a button to reveal a new word
