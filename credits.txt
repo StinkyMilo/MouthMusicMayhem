@@ -1,0 +1,7 @@
+Team:
+Milo Jacobs
+Emmy Krum
+Ellys Gorodisch
+Grace Phillips
+
+Word list is from https://github.com/engichang1467/word-pictionary-list
