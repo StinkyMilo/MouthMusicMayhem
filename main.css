@@ -3301,3 +3301,27 @@ input::-moz-focus-inner {
   .block{
 	display: inline-block;
   }
+
+  .vertical{
+	width: fit-content;
+	height: fit-content;
+	flex-shrink: 5;
+	background-color: #2196F3;
+	transform-origin: top left;
+	translate: 0px 400px;
+	transform: rotate(-90deg);
+  }
+
+  .flex-horizontal{
+	display:flex;
+	flex-direction: row;
+  }
+  .flex-vertical{
+	display:flex;
+	flex-direction: column;
+  }
+
+  .grow{
+	flex-grow: 4;
+	text-align: center;
+  }

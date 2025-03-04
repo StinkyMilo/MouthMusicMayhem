@@ -2,7 +2,17 @@
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
-    <canvas id="canvas" width=800 height=400 style="border:1px solid black;"></canvas>
+    <div class="flex-horizontal">
+        <label id="Y-Axis" class="vertical">Low Pitch . . . High Pitch</label>
+        <div class = "flex-vertical">
+            <canvas id="canvas" width=800 height=400 style="border:1px solid black;"></canvas>
+            <div class="flex-horizontal">
+                <label id="X-Axis-Min">Earlier</label>
+                <label id="X-Axis-Mid" class="grow">. . .</label>
+                <label id="X-Axis-Max">Later</label>
+            </div>
+        </div>
+    </div>
     <p id="errorText"></p>
     <br/>
     <button id="recordButton" class="button primary" onclick="record();">Record</button>

@@ -72,13 +72,13 @@ function runLoop(){
             totalVolume+=amplitude*amplitude;
         }
         totalVolume/=inputBuffer.length;
-        console.log("Volume = "+totalVolume*50000);
+        console.log("Volume = "+totalVolume*25000);
 
         //draw circles...
         // ...at coordinates based on time and frequency/pitch
         let penX = 0;
         if(xAxisVolume){
-            penX = (totalVolume*50000)%c.width;
+            penX = (totalVolume*25000)%c.width;
         }
         else{
             penX = (c.width/numValues)*loopFrame;
@@ -254,6 +254,14 @@ window.updateRange=function(){
 }
 window.xAxisVolumeToggle=function(){
     xAxisVolume = !xAxisVolume;
+    if(xAxisVolume){
+        document.getElementById("X-Axis-Min").innerHTML = "Quieter";
+        document.getElementById("X-Axis-Max").innerHTML = "Louder";
+    }
+    else{
+        document.getElementById("X-Axis-Min").innerHTML = "Earlier";
+        document.getElementById("X-Axis-Max").innerHTML = "Later";
+    }
     console.log("toggling it to "+xAxisVolume);
 }
 loop = setInterval(runLoop,33);
