@@ -210,7 +210,7 @@ window.record = async function(){
     }
 }
 let playedBefore=false;
-let endButton;
+let endButton = document.getElementById("endButton");
 window.endGame=function(){
     if(playedBefore){
         return;
