@@ -1,4 +1,5 @@
 import { PitchDetector } from "https://esm.sh/pitchy@4";
+import {words} from "words.js"
 let errorText=document.getElementById("errorText");
 let c = document.getElementById("canvas");
 let ctx = c.getContext("2d");
