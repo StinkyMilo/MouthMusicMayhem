@@ -144,7 +144,7 @@ window.record = async function(){
     }
     loopRunning = true;
     loopFrame = 0;
-    mediaRecorder.start(50);
+    mediaRecorder.start(33);
     mediaRecorder.ondataavailable=(e)=>{
         chunks.push(e.data);
         // console.log(chunks);
