@@ -73,12 +73,15 @@ function runLoop(){
         totalVolume/=inputBuffer.length;
         // console.log(totalVolume);
 
-        
+        //draw circles...
+        // ...at coordinates based on time and frequency
         let penX = (c.width/numValues)*loopFrame;
         let penY = freqToY(thisPitch[0]);
         console.log(thisPitch[0],penY);
+        // ...with colors based on the turn and number of claps
         ctx.fillStyle="black";
         let color = colors[(turn + numClaps)%numPlayers];
+
         ctx.fillRect(penX-1,0,2,c.height);
         if(thisPitch[0] >= minFreq && thisPitch[0] <= maxFreq && thisPitch[1] >= 0.9){
             circles.push({x:penX,y:penY,r:ampToSize(totalVolume),connect:lastWasAdded,c:color});
