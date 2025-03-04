@@ -8,6 +8,14 @@
     <button id="recordButton" class="button primary" onclick="record();">Record</button>
     <button id="endButton" class="button" onclick="endGame();">End</button>
     <button id="startOver" class="button" onclick="startOver();">Start Over</button>
+    <div class="block">
+        <label class="switch">
+            <input type="checkbox">
+            <span class="slider round"></span>
+        </label>
+        <p>X-Axis = Volume?</p>
+    </div>
+
     <audio id="audioElement"></audio>
     <label for="numPlayers">Players:</label>
     <input type="range" id="numPlayers" min="1" max="6" oninput="updateRange();" value=1 autocomplete="off">
