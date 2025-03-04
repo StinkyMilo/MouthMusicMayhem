@@ -21,12 +21,15 @@
     <button id="recordButton" class="button primary" onclick="record();">Record</button>
     <button id="endButton" class="button" onclick="endGame();">End</button>
     <button id="startOver" class="button" onclick="startOver();">Start Over</button>
+
     <div class="block">
-        <label class="switch">
-            <input type="checkbox" onchange="xAxisVolumeToggle();">
-            <span class="slider round"></span>
-        </label>
-        <p>X-Axis = Volume?</p>
+        <div class="flex-vertical">
+            <label class="switch">
+                <input type="checkbox" onchange="xAxisVolumeToggle();">
+                <span class="slider round"></span>
+            </label>
+            <p style="font-size: x-small;">X-Axis = Volume?</p>
+        </div>
     </div>
 
     <audio id="audioElement"></audio>
