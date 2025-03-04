@@ -1,11 +1,11 @@
-- Try making volume the X axis
+- Try making volume the X axis - Grace
     - Change turn logic accordingly to end after a single continuous noise
     - Add option to turn it on or off
-- Add customization to drawing
+- Add customization to drawing - Ellys
     - Allow undo
-    - Allow choosing of color
+    - Allow choosing of color 
 - Add Pictionary Mode
-    - Get a good word list off the internet
+    - Get a good word list off the internet - Milo
     - Set up menus - tell the guessing player to look away and have a button to reveal a new word
     - When clicked, show everyone that word, then have a button to hide it.
     - Once the word is hidden, the main UI for drawing clears any existing drawings and shows
@@ -14,3 +14,8 @@
             - Maybe have a little celebration
             - Can also add to a collective team score if we want
         - When you press "give up", just move onto the "new word" mode.
+
+Other stuff:
+- Write/Practice Presentation together on Thursday
+- Written Reflection - Emmy
+- Playtesting stuff - Emmy
