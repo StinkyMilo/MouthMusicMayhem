@@ -64,6 +64,15 @@ function freqToY(freq){
     //Attempted exponential version
     // return c.height - (c.height * (Math.log(2)/Math.log(maxFreq-minFreq+1)) * (Math.log(freq - minFreq + 1)/Math.log(2)));
 }
+function setButtonEnabled(button,enabled){
+    if(enabled){
+        button.classList.remove("disabled");
+        button.style.pointerEvents="auto";
+    }else{
+        button.classList.add("disabled");
+        button.style.pointerEvents="none";
+    }
+}
 function ampToSize(amp){
     return 15*(-Math.exp(-700*amp)+1);
 }
