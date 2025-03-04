@@ -6,7 +6,7 @@
 }
 
 .color[data-selected="0"] {
-    border: 0px black solid;
+    border: 1px black solid;
 }
 
 .color[data-selected="1"] {
