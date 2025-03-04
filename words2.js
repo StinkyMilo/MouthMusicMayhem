@@ -28,3 +28,4 @@ var words = [
     "sun",
     "moon"
 ];
+export default words;
