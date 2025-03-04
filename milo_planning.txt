@@ -3,9 +3,9 @@
     - Add option to turn it on or off
 - Add customization to drawing
     - Allow undo
-    - Allow choosing of color
+    - Allow choosing of color - Grace
 - Add Pictionary Mode
-    - Get a good word list off the internet
+    - Get a good word list off the internet - Milo
     - Set up menus - tell the guessing player to look away and have a button to reveal a new word
     - When clicked, show everyone that word, then have a button to hide it.
     - Once the word is hidden, the main UI for drawing clears any existing drawings and shows
