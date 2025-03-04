@@ -1,5 +1,5 @@
 import { PitchDetector } from "https://esm.sh/pitchy@4";
-import {words} from "words.js"
+import words from "./words.js";
 let errorText=document.getElementById("errorText");
 let c = document.getElementById("canvas");
 let ctx = c.getContext("2d");
@@ -243,5 +243,23 @@ window.startOver=function(){
 window.updateRange=function(){
     numPlayers=document.getElementById("numPlayers").value;
     document.getElementById("currentPlayers").innerHTML=numPlayers;
+}
+const wordP = document.getElementById("word");
+window.newWord=function(){
+    let word = words[Math.floor(Math.random()*words.length)].toLowerCase();
+    word = word[0].toUpperCase() + word.substring(1);
+    wordP.innerHTML = "Guesser, Look Away!"
+    setTimeout(()=>{
+        wordP.innerHTML = "Showing in 3...";
+        setTimeout(()=>{
+            wordP.innerHTML = "Showing in 2...";
+            setTimeout(()=>{
+                wordP.innerHTML = "Showing in 1...";
+                setTimeout(()=>{
+                    wordP.innerHTML="The Word is " + word + ".";
+                },1000);
+            },1000);
+        },1000);
+    },2000);
 }
 loop = setInterval(runLoop,33);
