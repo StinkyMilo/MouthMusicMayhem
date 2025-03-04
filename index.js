@@ -25,6 +25,7 @@ let maxFreq = 900;
 let ctxStarted=false;
 let merger;
 let destNode;
+let xAxisVolume = false;
 const fileReader = new FileReader();
 async function startCtx(){
     actx = new AudioContext();
@@ -242,5 +243,9 @@ window.startOver=function(){
 window.updateRange=function(){
     numPlayers=document.getElementById("numPlayers").value;
     document.getElementById("currentPlayers").innerHTML=numPlayers;
+}
+window.xAxisVolumeToggle=function(){
+    xAxisVolume = !xAxisVolume;
+    console.log("toggling it to "+xAxisVolume);
 }
 loop = setInterval(runLoop,33);
