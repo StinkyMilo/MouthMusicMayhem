@@ -253,7 +253,6 @@ window.giveUp = function(){
 }
 
 loop = setInterval(runLoop,33);
-loop = setInterval(runLoop,33);
 
 window.undo = function() {
     if (currUndoPoint.startFrame == -1 || currUndoPoint.startAudio == -1 || currUndoPoint.endAudio == -1)
