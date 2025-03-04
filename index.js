@@ -3,6 +3,8 @@ import words from "./words.js";
 let errorText=document.getElementById("errorText");
 let c = document.getElementById("canvas");
 let ctx = c.getContext("2d");
+let gameUI = document.getElementById("inGameUI");
+let menuUI = document.getElementById("menuUI");
 let stream;
 let numPlayers=1;
 let colors = ["black","blue","green","red","purple","orange"];
@@ -219,6 +221,16 @@ window.record = async function(){
         }
     }
 }
+function setInGame(inGame){
+    if(inGame){
+        menuUI.style.display = "none";
+        gameUI.style.display = "block";
+    }else{
+        gameUI.style.display = "none";
+        menuUI.style.display = "block";
+    }
+}
+setInGame(false);
 let playedBefore=false;
 let endButton = document.getElementById("endButton");
 window.endGame=function(){
@@ -266,5 +278,16 @@ window.newWord=async function(){
     wordP.innerHTML=`The word is ${word}.<br/>Hiding in 1...`;
     await wait(1000);
     wordP.innerHTML="";
+    setInGame(true);
 }
+
+window.wordGuessed = function(){
+    startOver();
+    setInGame(false);
+}
+window.giveUp = function(){
+    startOver();
+    setInGame(false);
+}
+
 loop = setInterval(runLoop,33);

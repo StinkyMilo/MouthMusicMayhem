@@ -2,15 +2,23 @@
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
-    <canvas id="canvas" width=800 height=400 style="border:1px solid black;"></canvas>
-    <p id="errorText"></p>
     <br/>
-    <button id="recordButton" class="button primary" onclick="record();">Record</button>
-    <button id="endButton" class="button" onclick="endGame();">End</button>
-    <button id="startOver" class="button" onclick="startOver();">Start Over</button>
+    <div id="inGameUI">
+        <canvas id="canvas" width=800 height=400 style="border:1px solid black;"></canvas>
+        <p id="errorText"></p>
+        <button id="recordButton" class="button primary" onclick="record();">Record</button>
+        <button id="endButton" class="button" onclick="endGame();">End</button>
+        <!-- <button id="startOver" class="button" onclick="startOver();">Start Over</button> -->
+        <br/>
+        <br/>
+        <button id="wordGuessed" class="button primary" onclick="wordGuessed();">Word Guessed</button>
+        <button id="giveUp" class="button" onclick="giveUp();">Give Up</button>
+    </div>
     <br/>
     <br/>
-    <button id="newWord" class="button primary" onclick="newWord();">Get Word</button>
+    <div id="menuUI">
+        <button id="newWord" class="button primary" onclick="newWord();">Get Word</button>
+    </div>
     <p id="word"></p>
     <audio id="audioElement"></audio>
     <label for="numPlayers">Players:</label>
