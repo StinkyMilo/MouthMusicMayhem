@@ -26,6 +26,12 @@ let ctxStarted=false;
 let merger;
 let destNode;
 const fileReader = new FileReader();
+let undoPoints = [];
+let currUndoPoint = {
+    start: 0,
+    end: -1,
+    startTime: 0
+};
 async function startCtx(){
     actx = new AudioContext();
     if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
@@ -71,15 +77,21 @@ function runLoop(){
         // console.log(totalVolume);
         let penX = (c.width/numValues)*loopFrame;
         let penY = freqToY(thisPitch[0]);
-        console.log(thisPitch[0],penY);
+        // console.log(thisPitch[0],penY);
         ctx.fillStyle="black";
         let color = colors[turn%numPlayers];
         ctx.fillRect(penX-1,0,2,c.height);
         if(thisPitch[0] >= minFreq && thisPitch[0] <= maxFreq && thisPitch[1] >= 0.9){
+            if (!lastWasAdded) {
+                currUndoPoint.start = chunks.length - 1;
+                currUndoPoint.startTime = loopFrame;
+            }
             circles.push({x:penX,y:penY,r:ampToSize(totalVolume),connect:lastWasAdded,c:color});
-            console.log(lastWasAdded);
+            // console.log(lastWasAdded);
             lastWasAdded=true;
         }else{
+            if (lastWasAdded)
+                currUndoPoint.end = chunks.length - 1;
             lastWasAdded = false;
         }
         for(let i = 0; i < circles.length; i++){
@@ -120,6 +132,7 @@ function runLoop(){
             // ctx.arc(circ.x,circ.y,circ.r,0,2*Math.PI);
         }
         ctx.fillStyle="black";
+        console.log(loopFrame)
         loopFrame++;
         if(loopFrame>=numValues){
             loopRunning=false;
@@ -178,9 +191,13 @@ window.record = async function(){
     mediaRecorder.start();
     mediaRecorder.ondataavailable=(e)=>{
         chunks.push(e.data);
-        console.log(chunks);
+        // console.log(chunks);
     }
     mediaRecorder.onstop=async (e)=>{
+        for (let i = undoPoints.length - 1; i >= 0; i--) {
+            const undoPoint = undoPoints[i];
+            chunks.splice(undoPoint.start, undoPoint.end - undoPoint.start);
+        }
         const blob = new Blob(chunks,{type:"audio/ogg; codecs=opus"});
         chunks=[];
         const audioURL = window.URL.createObjectURL(blob);
@@ -189,7 +206,7 @@ window.record = async function(){
         fileReader.onloadend=()=>{
             const arrayBuffer = fileReader.result;
             actx.decodeAudioData(arrayBuffer,(audioBuffer)=>{
-                console.log(audioBuffer);
+                // console.log(audioBuffer);
                 let historySource = actx.createBufferSource();
                 historySource.buffer = audioBuffer;
                 history.push(historySource);
@@ -236,3 +253,13 @@ window.updateRange=function(){
     document.getElementById("currentPlayers").innerHTML=numPlayers;
 }
 loop = setInterval(runLoop,33);
+
+window.undo = function() {
+    undoPoints.push(currUndoPoint);
+    loopFrame = currUndoPoint.startTime;
+    currUndoPoint = {
+        start: chunks.length - 1,
+        end: -1,
+        startTime: 0
+    };
+};
