@@ -28,10 +28,13 @@ let destNode;
 const fileReader = new FileReader();
 let undoPoints = [];
 let currUndoPoint = {
-    start: 0,
-    end: -1,
-    startTime: 0
+    startFrame: -1,
+    addingCircles: false,
+    circles: [],
+    startAudio: -1,
+    endAudio: -1
 };
+let color = "black";
 async function startCtx(){
     actx = new AudioContext();
     if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
@@ -85,61 +88,30 @@ function runLoop(){
         let penY = freqToY(thisPitch[0]);
         // console.log(thisPitch[0],penY);
         ctx.fillStyle="black";
-        let color = colors[(turn + numClaps)%numPlayers];
+        // let color = colors[(turn + numClaps)%numPlayers];
 
         ctx.fillRect(penX-1,0,2,c.height);
         if(thisPitch[0] >= minFreq && thisPitch[0] <= maxFreq && thisPitch[1] >= 0.9){
             if (!lastWasAdded) {
-                currUndoPoint.start = chunks.length - 1;
-                currUndoPoint.startTime = loopFrame;
+                currUndoPoint.startFrame = loopFrame;
+                currUndoPoint.startAudio = chunks.length - 1;
+                currUndoPoint.circles = [];
+                currUndoPoint.addingCircles = true;
             }
-            circles.push({x:penX,y:penY,r:ampToSize(totalVolume),connect:lastWasAdded,c:color});
+            const circle = {x:penX,y:penY,r:ampToSize(totalVolume),connect:lastWasAdded,c:color};
+            circles.push(circle);
+            if (currUndoPoint.addingCircles)
+                currUndoPoint.circles.push(circle);
             // console.log(lastWasAdded);
             lastWasAdded=true;
         }else{
             if (lastWasAdded)
-                currUndoPoint.end = chunks.length - 1;
+                currUndoPoint.endAudio = chunks.length - 1;
+                currUndoPoint.addingCircles = false;
             lastWasAdded = false;
         }
-        for(let i = 0; i < circles.length; i++){
-            let circ = circles[i];
-            // console.log(`Drawing circle ${circ.x} ${circ.y} ${circ.r} ${circ.connect}`);
-            ctx.fillStyle=circles[i].c;
-            let connected = i!=0 && circ.connect;
-            if(connected){
-                let lastCirc = circles[i-1];
-                let numFrames = Math.floor(Math.sqrt((circ.x - lastCirc.x)**2 + (circ.y - lastCirc.y)**2));
-                for(let j = 0; j < numFrames; j++){
-                    ctx.beginPath();
-                    let thisX = lastCirc.x + j*((circ.x-lastCirc.x)/numFrames);
-                    let thisY = lastCirc.y + j*((circ.y-lastCirc.y)/numFrames);
-                    let thisR = lastCirc.r + j*((circ.r - lastCirc.r)/numFrames);
-                    ctx.moveTo(thisX,thisY);
-                    ctx.arc(thisX,thisY,thisR,0,2*Math.PI);
-                    ctx.closePath();
-                    ctx.fill();
-                }
-            }
-            ctx.beginPath();
-            ctx.moveTo(circ.x,circ.y);
-            ctx.arc(circ.x,circ.y,circ.r,0,2*Math.PI);
-            ctx.closePath();
-            ctx.fill();
-            // if(!disconnected){
-            //     ctx.lineWidth = circ.r;
-            //     ctx.moveTo(circles[i-1].x,circles[i-1].y);
-            //     ctx.lineTo(circ.x,circ.y);
-            //     ctx.closePath();
-            //     ctx.stroke();
-            // }else{
-            //     ctx.moveTo(circ.x,circ.y);
-            //     ctx.arc(circ.x,circ.y,circ.r,0,2*Math.PI);
-            //     ctx.closePath();
-            // }
-            // ctx.arc(circ.x,circ.y,circ.r,0,2*Math.PI);
-        }
-        ctx.fillStyle="black";
-        console.log(loopFrame)
+        drawCircles();
+        // console.log(loopFrame)
         loopFrame++;
         if(loopFrame>=numValues){
             loopRunning=false;
@@ -150,34 +122,7 @@ function runLoop(){
         let penX = (c.width/numValues)*loopFrame;
         ctx.fillStyle="black";
         ctx.fillRect(penX-1,0,2,c.height);
-        for(let i = 0; i < circles.length; i++){
-            let circ = circles[i];
-            if(circ.x > penX){
-                continue;
-            }
-            // console.log(`Drawing circle ${circ.x} ${circ.y} ${circ.r} ${circ.connect}`);
-            ctx.fillStyle=circles[i].c;
-            let connected = i!=0 && circ.connect;
-            if(connected){
-                let lastCirc = circles[i-1];
-                let numFrames = Math.floor(Math.sqrt((circ.x - lastCirc.x)**2 + (circ.y - lastCirc.y)**2));
-                for(let j = 0; j < numFrames; j++){
-                    ctx.beginPath();
-                    let thisX = lastCirc.x + j*((circ.x-lastCirc.x)/numFrames);
-                    let thisY = lastCirc.y + j*((circ.y-lastCirc.y)/numFrames);
-                    let thisR = lastCirc.r + j*((circ.r - lastCirc.r)/numFrames);
-                    ctx.moveTo(thisX,thisY);
-                    ctx.arc(thisX,thisY,thisR,0,2*Math.PI);
-                    ctx.closePath();
-                    ctx.fill();
-                }
-            }
-            ctx.beginPath();
-            ctx.moveTo(circ.x,circ.y);
-            ctx.arc(circ.x,circ.y,circ.r,0,2*Math.PI);
-            ctx.closePath();
-            ctx.fill();
-        }
+        drawCircles(penX);
         loopFrame++;
         if(loopFrame>=numValues){
             replaying=false;
@@ -195,7 +140,7 @@ window.record = async function(){
     }
     loopRunning = true;
     loopFrame = 0;
-    mediaRecorder.start();
+    mediaRecorder.start(50);
     mediaRecorder.ondataavailable=(e)=>{
         chunks.push(e.data);
         // console.log(chunks);
@@ -203,7 +148,8 @@ window.record = async function(){
     mediaRecorder.onstop=async (e)=>{
         for (let i = undoPoints.length - 1; i >= 0; i--) {
             const undoPoint = undoPoints[i];
-            chunks.splice(undoPoint.start, undoPoint.end - undoPoint.start);
+            console.log(undoPoint)
+            chunks.splice(undoPoint.startAudio, undoPoint.endAudio - undoPoint.startAudio);
         }
         const blob = new Blob(chunks,{type:"audio/ogg; codecs=opus"});
         chunks=[];
@@ -262,11 +208,63 @@ window.updateRange=function(){
 loop = setInterval(runLoop,33);
 
 window.undo = function() {
-    undoPoints.push(currUndoPoint);
-    loopFrame = currUndoPoint.startTime;
+    undoPoints.push(JSON.parse(JSON.stringify(currUndoPoint)));
+    for (const circle of currUndoPoint.circles)
+        circles.splice(circles.indexOf(circle), 1);
+    drawCircles();
+    loopFrame = currUndoPoint.startFrame;
     currUndoPoint = {
-        start: chunks.length - 1,
-        end: -1,
-        startTime: 0
+        startFrame: -1,
+        addingCircles: false,
+        circles: [],
+        startAudio: -1,
+        endAudio: -1
     };
+};
+
+const drawCircles = function(penX) {
+    for (let i = 0; i < circles.length; i++){
+        let circ = circles[i];
+        if(penX != null && circ.x > penX)
+            continue;
+        // console.log(`Drawing circle ${circ.x} ${circ.y} ${circ.r} ${circ.connect}`);
+        ctx.fillStyle=circles[i].c;
+        let connected = i!=0 && circ.connect;
+        if(connected){
+            let lastCirc = circles[i-1];
+            let numFrames = Math.floor(Math.sqrt((circ.x - lastCirc.x)**2 + (circ.y - lastCirc.y)**2));
+            for(let j = 0; j < numFrames; j++){
+                ctx.beginPath();
+                let thisX = lastCirc.x + j*((circ.x-lastCirc.x)/numFrames);
+                let thisY = lastCirc.y + j*((circ.y-lastCirc.y)/numFrames);
+                let thisR = lastCirc.r + j*((circ.r - lastCirc.r)/numFrames);
+                ctx.moveTo(thisX,thisY);
+                ctx.arc(thisX,thisY,thisR,0,2*Math.PI);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+        ctx.beginPath();
+        ctx.moveTo(circ.x,circ.y);
+        ctx.arc(circ.x,circ.y,circ.r,0,2*Math.PI);
+        ctx.closePath();
+        ctx.fill();
+        // if(!disconnected){
+        //     ctx.lineWidth = circ.r;
+        //     ctx.moveTo(circles[i-1].x,circles[i-1].y);
+        //     ctx.lineTo(circ.x,circ.y);
+        //     ctx.closePath();
+        //     ctx.stroke();
+        // }else{
+        //     ctx.moveTo(circ.x,circ.y);
+        //     ctx.arc(circ.x,circ.y,circ.r,0,2*Math.PI);
+        //     ctx.closePath();
+        // }
+        // ctx.arc(circ.x,circ.y,circ.r,0,2*Math.PI);
+    }
+    // ctx.fillStyle="black";
+};
+
+window.changeColor = function(c) {
+    color = c;
 };
