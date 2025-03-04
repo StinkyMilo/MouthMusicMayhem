@@ -1,13 +1,27 @@
 <head>
     <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="new.css">
 </head>
 <body>
-    <br/>
     <div id="inGameUI">
-        <canvas id="canvas" width=800 height=400 style="border:1px solid black;"></canvas>
+        <div style="display: flex; justify-content: left;">
+            <canvas id="canvas" width=800 height=400 style="border:1px solid black;"></canvas>
+            <table style="width: fit-content; height: fit-content;">
+                <tr>
+                    <td><button class="color" onclick="changeColor('black');" style="background-color: black;"></button></td>
+                    <td><button class="color" onclick="changeColor('red');" style="background-color: red"></button></td>
+                </tr>
+                <tr>
+                    <td><button class="color" onclick="changeColor('blue');" style="background-color: blue;"></button></td>
+                    <td><button class="color" onclick="changeColor('green');" style="background-color: green"></button></td>
+                </tr>
+                <tr></tr>
+            </table>
+        </div>
         <p id="errorText"></p>
         <button id="recordButton" class="button primary" onclick="record();">Record</button>
         <button id="endButton" class="button" onclick="endGame();">End</button>
+        <button id="undo" class="button" onclick="undo();">Undo</button>
         <!-- <button id="startOver" class="button" onclick="startOver();">Start Over</button> -->
         <br/>
         <br/>
