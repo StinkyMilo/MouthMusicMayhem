@@ -257,6 +257,14 @@ window.newWord=async function(){
     await wait(1000);
     wordP.innerHTML = "Showing in 1...";
     await wait(1000);
-    wordP.innerHTML="The Word is " + word + ".";
+    wordP.innerHTML=`The word is ${word}.`;
+    await wait(1000);
+    wordP.innerHTML=`The word is ${word}.<br/>Hiding in 3...`;
+    await wait(1000);
+    wordP.innerHTML=`The word is ${word}.<br/>Hiding in 2...`;
+    await wait(1000);
+    wordP.innerHTML=`The word is ${word}.<br/>Hiding in 1...`;
+    await wait(1000);
+    wordP.innerHTML="";
 }
 loop = setInterval(runLoop,33);
