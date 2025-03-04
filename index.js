@@ -256,6 +256,8 @@ loop = setInterval(runLoop,33);
 loop = setInterval(runLoop,33);
 
 window.undo = function() {
+    if (currUndoPoint.startFrame == -1 || currUndoPoint.startAudio == -1 || currUndoPoint.endAudio == -1)
+        return;
     undoPoints.push(JSON.parse(JSON.stringify(currUndoPoint)));
     for (const circle of currUndoPoint.circles)
         circles.splice(circles.indexOf(circle), 1);
