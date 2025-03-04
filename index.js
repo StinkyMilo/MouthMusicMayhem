@@ -242,6 +242,9 @@ window.newWord=async function(){
     wordP.innerHTML="";
     setInGame(true);
 }
+window.jumpIn=async function(){
+    setInGame(true);
+}
 
 window.wordGuessed = function(){
     startOver();
@@ -314,6 +317,8 @@ const drawCircles = function(penX) {
     // ctx.fillStyle="black";
 };
 
-window.changeColor = function(c) {
+window.changeColor = function(e, c) {
+    document.querySelector(".color[data-selected='1']").dataset.selected = "0";
+    e.dataset.selected = "1";
     color = c;
 };
