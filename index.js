@@ -57,11 +57,14 @@ function ampToSize(amp){
 let circles = [];
 let lastWasAdded = false;
 let replaying = false;
+let numClaps = 0; //will use this to switch colors on claps
 function runLoop(){
     if(loopRunning){
         ctx.clearRect(0,0,c.width,c.height);
-        analyzer.getFloatTimeDomainData(inputBuffer);
-        let thisPitch = detector.findPitch(inputBuffer,actx.sampleRate);
+
+        //get the pitch of the most recent ~1/30th-of-a-second snippet of audio
+        analyzer.getFloatTimeDomainData(inputBuffer); //saves the recent fourier transform on the recent audio
+        let thisPitch = detector.findPitch(inputBuffer,actx.sampleRate); //find the pitch from that transform
         // console.log(inputBuffer);
         let totalVolume = 0;
         for(const amplitude of inputBuffer){
@@ -69,11 +72,16 @@ function runLoop(){
         }
         totalVolume/=inputBuffer.length;
         // console.log(totalVolume);
+
+        //draw circles...
+        // ...at coordinates based on time and frequency
         let penX = (c.width/numValues)*loopFrame;
         let penY = freqToY(thisPitch[0]);
         console.log(thisPitch[0],penY);
+        // ...with colors based on the turn and number of claps
         ctx.fillStyle="black";
-        let color = colors[turn%numPlayers];
+        let color = colors[(turn + numClaps)%numPlayers];
+
         ctx.fillRect(penX-1,0,2,c.height);
         if(thisPitch[0] >= minFreq && thisPitch[0] <= maxFreq && thisPitch[1] >= 0.9){
             circles.push({x:penX,y:penY,r:ampToSize(totalVolume),connect:lastWasAdded,c:color});
