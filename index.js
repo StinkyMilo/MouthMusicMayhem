@@ -26,6 +26,7 @@ let maxFreq = 900;
 let ctxStarted=false;
 let merger;
 let destNode;
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 const fileReader = new FileReader();
 async function startCtx(){
     actx = new AudioContext();
@@ -245,21 +246,17 @@ window.updateRange=function(){
     document.getElementById("currentPlayers").innerHTML=numPlayers;
 }
 const wordP = document.getElementById("word");
-window.newWord=function(){
+window.newWord=async function(){
     let word = words[Math.floor(Math.random()*words.length)].toLowerCase();
     word = word[0].toUpperCase() + word.substring(1);
     wordP.innerHTML = "Guesser, Look Away!"
-    setTimeout(()=>{
-        wordP.innerHTML = "Showing in 3...";
-        setTimeout(()=>{
-            wordP.innerHTML = "Showing in 2...";
-            setTimeout(()=>{
-                wordP.innerHTML = "Showing in 1...";
-                setTimeout(()=>{
-                    wordP.innerHTML="The Word is " + word + ".";
-                },1000);
-            },1000);
-        },1000);
-    },2000);
+    await wait(2000);
+    wordP.innerHTML = "Showing in 3...";
+    await wait(1000);
+    wordP.innerHTML = "Showing in 2...";
+    await wait(1000);
+    wordP.innerHTML = "Showing in 1...";
+    await wait(1000);
+    wordP.innerHTML="The Word is " + word + ".";
 }
 loop = setInterval(runLoop,33);
