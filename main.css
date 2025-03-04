@@ -3303,13 +3303,15 @@ input::-moz-focus-inner {
   }
 
   .vertical{
-	width: fit-content;
+	width: 400px;
 	height: fit-content;
 	flex-shrink: 5;
-	background-color: #2196F3;
 	transform-origin: top left;
-	translate: 0px 400px;
+	translate: 0px 450px;
 	transform: rotate(-90deg);
+	display:flex;
+	flex-direction: row;
+
   }
 
   .flex-horizontal{
@@ -3319,6 +3321,8 @@ input::-moz-focus-inner {
   .flex-vertical{
 	display:flex;
 	flex-direction: column;
+	width: fit-content;
+	height: fit-content;
   }
 
   .grow{
