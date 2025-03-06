@@ -82,6 +82,7 @@ let circles = [];
 let lastWasAdded = false;
 let replaying = false;
 let numClaps = 0; //will use this to switch colors on claps
+let activeWord = "";
 function runLoop(){
     if(loopRunning){
         // console.log("Time:", actx.currentTime)
@@ -143,6 +144,7 @@ function runLoop(){
         loopFrame++;
         if(loopFrame>=numValues){
             replaying=false;
+            wordGuessed();
         }
     }
     time += 33;
@@ -246,9 +248,14 @@ function setInGame(inGame){
 setInGame(false);
 let playedBefore=false;
 let endButton = document.getElementById("endButton");
-window.endGame=function(){
+window.endGame=function(success){
     if(playedBefore){
         return;
+    }
+    if(success){
+        gameHeader.innerHTML = `Guessed the word in ${turn} turns!`;
+    }else{
+        gameHeader.innerHTML = `The word was ${activeWord}.`;
     }
     replaying=true;
     loopFrame=0;
@@ -257,14 +264,14 @@ window.endGame=function(){
         history[i].source.start(actx.currentTime + history[i].when, history[i].offset, history[i].duration);
     }
     playedBefore=true;
-    endButton.className = "button disabled";
+    // endButton.className = "button disabled";
 }
 window.startOver=function(){
     history = [];
     circles = [];
     turn=0;
     playedBefore=false;
-    endButton.className = "button";
+    // endButton.className = "button";
     ctx.clearRect(0,0,c.width,c.height);
 }
 window.updateRange=function(){
@@ -275,6 +282,7 @@ const wordP = document.getElementById("word");
 window.newWord=async function(){
     let word = words[Math.floor(Math.random()*words.length)].toLowerCase();
     word = word[0].toUpperCase() + word.substring(1);
+    activeWord=word;
     wordP.innerHTML = "Guesser, Look Away!"
     await wait(2000);
     wordP.innerHTML = "Showing in 3...";
@@ -298,7 +306,7 @@ window.jumpIn=async function(){
     setInGame(true);
 }
 
-window.wordGuessed = function(){
+let wordGuessed = function(){
     startOver();
     setInGame(false);
 }

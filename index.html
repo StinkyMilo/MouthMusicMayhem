@@ -33,13 +33,13 @@
         </div>
         <p id="errorText"></p>
         <button id="recordButton" class="button primary" onclick="record();">Record</button>
-        <button id="endButton" class="button" onclick="endGame();">End</button>
+        <!-- <button id="endButton" class="button" onclick="endGame();">End</button> -->
         <button id="undo" class="button" onclick="undo();">Undo</button>
         <button id="startOver" class="button" onclick="startOver();">Clear Canvas</button>
         <br/>
         <br/>
-        <button id="wordGuessed" class="button primary" onclick="wordGuessed();">Word Guessed</button>
-        <button id="giveUp" class="button" onclick="giveUp();">Give Up</button>
+        <button id="wordGuessed" class="button primary" onclick="endGame(true);">Word Guessed</button>
+        <button id="giveUp" class="button" onclick="endGame(false);">Give Up</button>
     </div>
     <br/>
     <br/>
