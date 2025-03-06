@@ -19,7 +19,7 @@ let inputBuffer;
 const minVolumeDecibels = -35;
 let actx;
 let history = [];
-let numValues = 300;
+let numValues = 200;
 let loopFrame = 0;
 let loopRunning = false;
 let loop;
@@ -179,8 +179,13 @@ window.record = async function(){
                     let historySource = actx.createBufferSource();
                     historySource.buffer = audioBuffer;
                     // console.log(audioBuffer)
-                    history.push(historySource);
                     historySource.connect(actx.destination);
+                    history.push({
+                        source:historySource,
+                        when:0,
+                        offset:0,
+                        duration:audioBuffer.length
+                    });
                 } else {
                     let sources = [];
                     for (let i = 0; i < undoPoints.length + 1; i++) {
