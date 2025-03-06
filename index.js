@@ -112,19 +112,24 @@ function runLoop(){
             if (!lastWasAdded && !currUndoPoint.adding) {
                 currUndoPoint.startFrame = loopFrame;
                 currUndoPoint.circles = [];
-                currUndoPoint.startTime = actx.currentTime;
+                currUndoPoint.startTime = actx.currentTime - 0.75;
                 currUndoPoint.adding = true;
+                // console.log("start")
             }
-            const circle = {x:penX,y:penY,r:ampToSize(totalVolume),connect:lastWasAdded,c:color};
-            circles.push(circle);
+            console.log(turn);
+            const circle = {x:penX,y:penY,r:ampToSize(totalVolume),connect:lastWasAdded,c:color,t:turn};
+            // console.log(JSON.parse(JSON.stringify(circle)));
+            // console.log(circle);
+            circles.push(JSON.parse(JSON.stringify(circle)));
             if (currUndoPoint.adding)
                 currUndoPoint.circles.push(circle);
             // console.log(lastWasAdded);
             lastWasAdded=true;
         }else{
             if (lastWasAdded && currUndoPoint.adding) {
-                currUndoPoint.endTime = actx.currentTime;
+                currUndoPoint.endTime = actx.currentTime - 0.75;
                 currUndoPoint.adding = false;
+                // console.log("end")
             }
             lastWasAdded = false;
         }
@@ -169,7 +174,11 @@ window.record = async function(){
         // console.log(chunks);
     }
     mediaRecorder.onstop=async (e)=>{
-        // console.log(undoPoints)
+        if (redo) {
+            chunks = [];
+            return;
+        }
+        console.log(undoPoints)
         const blob = new Blob(chunks,{type:"audio/ogg; codecs=opus"});
         chunks=[];
         const audioURL = window.URL.createObjectURL(blob);
@@ -183,6 +192,12 @@ window.record = async function(){
                     let historySource = actx.createBufferSource();
                     historySource.buffer = audioBuffer;
                     // console.log(audioBuffer)
+                    history.push({
+                        source: historySource,
+                        when: 0,
+                        offset: 0,
+                        duration: audioBuffer.duration
+                    });
                     historySource.connect(actx.destination);
                     history.push({
                         source:historySource,
@@ -219,6 +234,7 @@ window.record = async function(){
                         duration: audioBuffer.duration - undoPoints[undoPoints.length - 1].endTime
                     });
                 }
+                console.log("increment turn 2")
                 turn++;
                 recordButton.className = "button primary";
                 //Remove all current nodes, effectively removing merger from the hierarchy
@@ -261,7 +277,10 @@ window.endGame=function(success){
     loopFrame=0;
     console.log("history", JSON.parse(JSON.stringify(history)))
     for(let i = 0; i < history.length; i++){
-        history[i].source.start(actx.currentTime + history[i].when, history[i].offset, history[i].duration);
+        history[i].source.start(actx.currentTime + history[i].when, history[i].offset);
+        setTimeout(() => {
+            history[i].source.stop();
+        }, history[i].duration * 1000);
     }
     playedBefore=true;
     // endButton.className = "button disabled";
@@ -317,8 +336,9 @@ window.giveUp = function(){
 
 loop = setInterval(runLoop,33);
 
+let redo = false;
 window.undo = function() {
-    if (currUndoPoint.startFrame == -1)
+    /*if (currUndoPoint.startFrame == -1)
         return;
     undoPoints.push(JSON.parse(JSON.stringify(currUndoPoint)));
     for (const circle of currUndoPoint.circles)
@@ -331,7 +351,18 @@ window.undo = function() {
         circles: [],
         startTime: -1,
         endTime: -1
-    };
+    };*/
+    redo = true;
+    circles = circles.filter((c) => {
+        return c.t != turn;
+    });
+    console.log("circles", circles.length)
+    mediaRecorder.stop();
+    mediaRecorder.start(33);
+    loopFrame = 0;
+    setTimeout(() => {
+        redo = false;
+    }, 10);
 };
 
 const drawCircles = function(penX) {
