@@ -31,7 +31,7 @@ let gameHeader = document.getElementById("gameHeader");
 let destNode;
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 const fileReader = new FileReader();
-let color = "black";
+let color = "cyan";
 async function startCtx(){
     actx = new AudioContext();
     if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
