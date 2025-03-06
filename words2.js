@@ -38,6 +38,7 @@ var words = [
     "bell",
     "line",
     "hot dog",
-    "school bus"
+    "school bus",
+    "smiley face"
 ];
 export default words;
