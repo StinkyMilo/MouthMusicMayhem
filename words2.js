@@ -26,6 +26,16 @@ var words = [
     "house",
     "banana",
     "sun",
-    "moon"
+    "moon",
+    "phone",
+    "mouse",
+    "knife",
+    "bed",
+    "earth",
+    "fire",
+    "sandwich",
+    "crab",
+    "bell",
+    "line",
 ];
 export default words;
