@@ -27,6 +27,7 @@ let minFreq = 80;
 let maxFreq = 900;
 let ctxStarted=false;
 let merger;
+let gameHeader = document.getElementById("gameHeader");
 let destNode;
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 const fileReader = new FileReader();
@@ -151,6 +152,7 @@ window.record = async function(){
     if(loopRunning){
         return;
     }
+    gameHeader.innerHTML="Draw!"
     recordButton.className = "button primary disabled";
     if(!ctxStarted){
         await startCtx();
@@ -227,6 +229,7 @@ window.record = async function(){
                 // }
                 // merger.connect(actx.destination);
             });
+            gameHeader.innerHTML = "Next Player - Press Record When Ready or End to Play Back";
         }
     }
 }
@@ -234,6 +237,7 @@ function setInGame(inGame){
     if(inGame){
         menuUI.style.display = "none";
         gameUI.style.display = "block";
+        gameHeader.innerHTML="Press Record to Start!";
     }else{
         gameUI.style.display = "none";
         menuUI.style.display = "block";
