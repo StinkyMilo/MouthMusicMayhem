@@ -7,7 +7,7 @@ let gameUI = document.getElementById("inGameUI");
 let menuUI = document.getElementById("menuUI");
 let stream;
 let numPlayers=1;
-let colors = ["black","blue","green","red","purple","orange"];
+// let colors = ["black","blue","green","red","purple","orange"];
 let turn = 0;
 let source;
 let mediaRecorder;
@@ -33,11 +33,12 @@ const fileReader = new FileReader();
 let undoPoints = [];
 let currUndoPoint = {
     startFrame: -1,
-    addingCircles: false,
+    adding: false,
     circles: [],
-    startAudio: -1,
-    endAudio: -1
+    startTime: -1,
+    endTime: -1
 };
+let time = 0;
 let color = "black";
 async function startCtx(){
     actx = new AudioContext();
@@ -82,6 +83,7 @@ let replaying = false;
 let numClaps = 0; //will use this to switch colors on claps
 function runLoop(){
     if(loopRunning){
+        // console.log("Time:", actx.currentTime)
         ctx.clearRect(0,0,c.width,c.height);
 
         //get the pitch of the most recent ~1/30th-of-a-second snippet of audio
@@ -105,22 +107,23 @@ function runLoop(){
 
         ctx.fillRect(penX-1,0,2,c.height);
         if(thisPitch[0] >= minFreq && thisPitch[0] <= maxFreq && thisPitch[1] >= 0.9){
-            if (!lastWasAdded) {
+            if (!lastWasAdded && !currUndoPoint.adding) {
                 currUndoPoint.startFrame = loopFrame;
-                currUndoPoint.startAudio = chunks.length - 1;
                 currUndoPoint.circles = [];
-                currUndoPoint.addingCircles = true;
+                currUndoPoint.startTime = actx.currentTime;
+                currUndoPoint.adding = true;
             }
             const circle = {x:penX,y:penY,r:ampToSize(totalVolume),connect:lastWasAdded,c:color};
             circles.push(circle);
-            if (currUndoPoint.addingCircles)
+            if (currUndoPoint.adding)
                 currUndoPoint.circles.push(circle);
             // console.log(lastWasAdded);
             lastWasAdded=true;
         }else{
-            if (lastWasAdded)
-                currUndoPoint.endAudio = chunks.length - 1;
-                currUndoPoint.addingCircles = false;
+            if (lastWasAdded && currUndoPoint.adding) {
+                currUndoPoint.endTime = actx.currentTime;
+                currUndoPoint.adding = false;
+            }
             lastWasAdded = false;
         }
         drawCircles();
@@ -141,6 +144,7 @@ function runLoop(){
             replaying=false;
         }
     }
+    time += 33;
 }
 let recordButton = document.getElementById("recordButton");
 window.record = async function(){
@@ -151,19 +155,17 @@ window.record = async function(){
     if(!ctxStarted){
         await startCtx();
     }
+    time = 0;
     loopRunning = true;
     loopFrame = 0;
     mediaRecorder.start(33);
     mediaRecorder.ondataavailable=(e)=>{
         chunks.push(e.data);
+        // console.log(chunks.length)
         // console.log(chunks);
     }
     mediaRecorder.onstop=async (e)=>{
-        for (let i = undoPoints.length - 1; i >= 0; i--) {
-            const undoPoint = undoPoints[i];
-            console.log(undoPoint)
-            chunks.splice(undoPoint.startAudio, undoPoint.endAudio - undoPoint.startAudio);
-        }
+        // console.log(undoPoints)
         const blob = new Blob(chunks,{type:"audio/ogg; codecs=opus"});
         chunks=[];
         const audioURL = window.URL.createObjectURL(blob);
@@ -173,10 +175,41 @@ window.record = async function(){
             const arrayBuffer = fileReader.result;
             actx.decodeAudioData(arrayBuffer,(audioBuffer)=>{
                 // console.log(audioBuffer);
-                let historySource = actx.createBufferSource();
-                historySource.buffer = audioBuffer;
-                history.push(historySource);
-                historySource.connect(actx.destination);
+                if (undoPoints.length == 0) {
+                    let historySource = actx.createBufferSource();
+                    historySource.buffer = audioBuffer;
+                    // console.log(audioBuffer)
+                    history.push(historySource);
+                    historySource.connect(actx.destination);
+                } else {
+                    let sources = [];
+                    for (let i = 0; i < undoPoints.length + 1; i++) {
+                        const source = actx.createBufferSource();
+                        source.buffer = audioBuffer;
+                        source.connect(actx.destination);
+                        sources.push(source);
+                    }
+                    history.push({
+                        source: sources[0],
+                        when: 0,
+                        offset: 0,
+                        duration: undoPoints[0].startTime
+                    });
+                    for (let i = 1; i < undoPoints.length; i++) {
+                        history.push({
+                            source: sources[i],
+                            when: history[i - 1].when + history[i - 1].duration,
+                            offset: undoPoints[i - 1].endTime,
+                            duration: undoPoints[i].startTime - undoPoints[i - 1].endTime
+                        });
+                    }
+                    history.push({
+                        source: sources[sources.length - 1],
+                        when: history[history.length - 1].when + history[history.length - 1].duration,
+                        offset: undoPoints[undoPoints.length - 1].endTime,
+                        duration: audioBuffer.duration - undoPoints[undoPoints.length - 1].endTime
+                    });
+                }
                 turn++;
                 recordButton.className = "button primary";
                 //Remove all current nodes, effectively removing merger from the hierarchy
@@ -210,8 +243,9 @@ window.endGame=function(){
     }
     replaying=true;
     loopFrame=0;
+    console.log("history", JSON.parse(JSON.stringify(history)))
     for(let i = 0; i < history.length; i++){
-        history[i].start();
+        history[i].source.start(actx.currentTime + history[i].when, history[i].offset, history[i].duration);
     }
     playedBefore=true;
     endButton.className = "button disabled";
@@ -267,7 +301,7 @@ window.giveUp = function(){
 loop = setInterval(runLoop,33);
 
 window.undo = function() {
-    if (currUndoPoint.startFrame == -1 || currUndoPoint.startAudio == -1 || currUndoPoint.endAudio == -1)
+    if (currUndoPoint.startFrame == -1)
         return;
     undoPoints.push(JSON.parse(JSON.stringify(currUndoPoint)));
     for (const circle of currUndoPoint.circles)
@@ -276,10 +310,10 @@ window.undo = function() {
     loopFrame = currUndoPoint.startFrame;
     currUndoPoint = {
         startFrame: -1,
-        addingCircles: false,
+        adding: false,
         circles: [],
-        startAudio: -1,
-        endAudio: -1
+        startTime: -1,
+        endTime: -1
     };
 };
 
