@@ -264,17 +264,30 @@ loop = setInterval(runLoop,33);
 
 let redo = false;
 window.undo = function() {
-    redo = true;
-    circles = circles.filter((c) => {
-        return c.t != turn;
-    });
-    console.log("circles", circles.length)
-    mediaRecorder.stop();
-    mediaRecorder.start(33);
-    loopFrame = 0;
-    setTimeout(() => {
-        redo = false;
-    }, 10);
+    console.log(loopRunning);
+    if (loopRunning) {
+        redo = true;
+        circles = circles.filter((c) => {
+            return c.t != turn;
+        });
+        console.log("circles", circles.length)
+        mediaRecorder.stop();
+        mediaRecorder.start(33);
+        loopFrame = 0;
+        setTimeout(() => {
+            redo = false;
+        }, 10);
+    } else {
+        turn--;
+        console.log(turn);
+        history.splice(history.length - 1, 1);
+        circles = circles.filter((c) => {
+            console.log(c.t, turn);
+            return c.t != turn;
+        });
+        console.log("circles", circles.length);
+        ctx.clearRect(0,0,c.width,c.height);
+    }
 };
 
 const drawCircles = function(penX) {
